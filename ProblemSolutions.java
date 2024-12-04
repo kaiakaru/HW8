@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   ADD YOUR NAME / SECTION NUMBER HERE
+ *   KAIA KARU  / COMP 272 001
  *
  *   This java file contains the problem solutions of canFinish and
  *   numGroups methods.
@@ -26,7 +26,7 @@ class ProblemSolutions {
      * in prerequisites. You want to avoid this embarrassment by making sure you define
      * a curriculum and exam schedule that can be completed.
      *
-     * You goal is to ensure that any student pursuing the certificate of 'master
+     * Your goal is to ensure that any student pursuing the certificate of 'master
      * programmer', can complete 'n' certification exams, each being specific to a
      * topic. Some exams have prerequisites of needing to take and pass earlier
      * certificate exams. You do not want to force any order of taking the exams, but
@@ -72,19 +72,53 @@ class ProblemSolutions {
      * @return boolean          - True if all exams can be taken, else false.
      */
 
-    public boolean canFinish(int numExams, 
-                             int[][] prerequisites) {
-      
-        int numNodes = numExams;  // # of nodes in graph
+
+    public boolean canFinish(int numExams, int[][] prerequisites) {
+        int numNodes = numExams;
 
         // Build directed graph's adjacency list
-        ArrayList<Integer>[] adj = getAdjList(numExams, 
-                                        prerequisites); 
+        ArrayList<Integer>[] adj = getAdjList(numNodes, prerequisites);
 
-        // ADD YOUR CODE HERE - ADD YOUR NAME / SECTION AT TOP OF FILE
-        return false;
+        // track visited nodes and recursion stack
+        boolean[] visited = new boolean[numNodes];
+        boolean[] recursionStack = new boolean[numNodes];
 
+        // DFS for each node
+        for (int i = 0; i < numNodes; i++) {
+            if (!visited[i]) {
+                if (isCyclic(i, adj, visited, recursionStack)) {
+                    return false; // if cycle detected
+                }
+            }
+        }
+
+        return true; // no cycles detected
     }
+
+
+    private boolean isCyclic(int node, ArrayList<Integer>[] adj, boolean[] visited, boolean[] recursionStack) {
+        visited[node] = true;
+        recursionStack[node] = true;
+
+        // Explore all neighbors
+        for (int neighbor : adj[node]) {
+            if (!visited[neighbor]) {
+                // Recurse on unvisited neighbors
+                if (isCyclic(neighbor, adj, visited, recursionStack)) {
+                    return true;
+                }
+            } else if (recursionStack[neighbor]) {
+                // Back edge detected (cycle found)
+                return true;
+            }
+        }
+
+        // Remove the node from recursion stack
+        recursionStack[node] = false;
+        return false;
+    }
+
+
 
 
     /**
@@ -101,8 +135,8 @@ class ProblemSolutions {
     private ArrayList<Integer>[] getAdjList(
             int numNodes, int[][] edges) {
 
-        ArrayList<Integer>[] adj 
-                    = new ArrayList[numNodes];      // Create an array of ArrayList ADT
+        ArrayList<Integer>[] adj
+                = new ArrayList[numNodes];      // Create an array of ArrayList ADT
 
         for (int node = 0; node < numNodes; node++){
             adj[node] = new ArrayList<Integer>();   // Allocate empty ArrayList per node
@@ -165,8 +199,12 @@ class ProblemSolutions {
 
     public int numGroups(int[][] adjMatrix) {
         int numNodes = adjMatrix.length;
-        Map<Integer,List<Integer>> graph = new HashMap();
-        int i = 0, j =0;
+        int i;
+        int j;
+
+        if (numNodes == 0) return 0;
+
+        Map<Integer, List<Integer>> graph = new HashMap<>();
 
         /*
          * Converting the Graph Adjacency Matrix to
@@ -174,9 +212,9 @@ class ProblemSolutions {
          * sample code illustrates a technique to do so.
          */
 
-        for(i = 0; i < numNodes ; i++){
-            for(j = 0; j < numNodes; j++){
-                if( adjMatrix[i][j] == 1 && i != j ){
+        for (i = 0; i < numNodes; i++) {
+            for (j = 0; j < numNodes; j++) {
+                if (adjMatrix[i][j] == 1 && i != j) {
                     // Add AdjList for node i if not there
                     graph.putIfAbsent(i, new ArrayList());
                     // Add AdjList for node j if not there
@@ -190,9 +228,33 @@ class ProblemSolutions {
             }
         }
 
-        // YOUR CODE GOES HERE - you can add helper methods, you do not need
-        // to put all code in this method.
-        return -1;
+        for (i = 0; i < numNodes; i++) {
+            graph.putIfAbsent(i, new ArrayList<>());
+        }
+
+        boolean[] visited = new boolean[numNodes];
+        int groupCount = 0;
+
+        for (i = 0; i < numNodes; i++) {
+            if (!visited[i]) {
+                dfs(i, graph, visited);
+                groupCount++;
+            }
+        }
+        return groupCount;
     }
 
+        // YOUR CODE GOES HERE - you can add helper methods, you do not need
+        // to put all code in this method.
+    private void dfs(int node, Map<Integer, List<Integer>> graph, boolean[] visited) {
+        // mark node as visited
+        visited[node] = true;
+
+        //recur for all neighbors
+        for (int neighbor : graph.get(node)) {
+            if (!visited[neighbor]) {
+                dfs(neighbor, graph, visited);
+            }
+        }
+    }
 }
